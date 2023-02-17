@@ -1,6 +1,8 @@
+from os import environ
+
 from telegram.client.bot import Bot
 
-bot = Bot("5558997908:AAGHTZzspej6_Snf8VWjQSyPN7P4TrayuR0")
+bot = Bot(environ["TOKEN"])
 
 
 @bot.on_message()
