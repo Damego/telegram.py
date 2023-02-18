@@ -6,11 +6,13 @@ from attrs import define, field
 from .user import User
 from ..attrs_utils import ClientSerializerMixin, convert, convert_dataclass
 from .chat import Chat
+from ...utils.types import MISSING, Absent
+from .keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
 
 
 @define(kw_only=True)
 class Message(ClientSerializerMixin):
-    id: int | None = field(default=None)
+    id: int
     message_thread_id: int | None = field(default=None)
     user: User | None = field(converter=convert_dataclass(User), default=None)  # from
     sender_chat: Chat = field(converter=convert_dataclass(Chat), default=None)
@@ -81,12 +83,12 @@ class Message(ClientSerializerMixin):
     # video_chat_ended
     # video_chat_participants_invited
     # web_app_data
-    # reply_markup
+    reply_markup: InlineKeyboardMarkup | None = field(converter=convert_dataclass(InlineKeyboardMarkup), default=None)
 
     @classmethod
     def process_dict(cls, data: dict, http) -> dict:
-        data["id"] = data.pop("message_id")
-
+        if "message_id" in data:
+            data["id"] = data.pop("message_id")
         if "from" in data:
             data["user"] = data.pop("from")
         if "forward_from" in data:
@@ -98,11 +100,41 @@ class Message(ClientSerializerMixin):
     def author(self) -> User:
         return self.user
 
-    async def reply_text(self, text: str, parse_mode: str | None = None) -> "Message":
+    async def reply_text(
+        self,
+        text: str,
+        message_thread_id: Absent[int] = MISSING,
+        parse_mode: Absent[str] = MISSING,
+        entities: Absent[list[dict]] = MISSING,
+        disable_web_page_preview: Absent[bool] = MISSING,
+        disable_notification: Absent[bool] = MISSING,
+        protect_content: Absent[bool] = MISSING,
+        allow_sending_without_reply: Absent[bool] = MISSING,
+        reply_markup: Absent[ReplyKeyboardMarkup] = MISSING,
+    ) -> "Message":
+        payload = {}
+        if message_thread_id is not MISSING:
+            payload["message_thread_id"] = message_thread_id
+        if parse_mode is not MISSING:
+            payload["parse_mode"] = parse_mode
+        if entities is not MISSING:
+            payload["entities"] = entities
+        if disable_web_page_preview is not MISSING:
+            payload["disable_web_page_preview"] = disable_web_page_preview
+        if disable_notification is not MISSING:
+            payload["disable_notification"] = disable_notification
+        if protect_content is not MISSING:
+            payload["protect_content"] = protect_content
+        if allow_sending_without_reply is not MISSING:
+            payload["allow_sending_without_reply"] = allow_sending_without_reply
+        if reply_markup is not MISSING:
+            payload["reply_markup"] = reply_markup.to_dict()
+
         response = await self.http.send_message(
             self.chat.id,
             text,
-            reply_to_message_id=self.id
+            reply_to_message_id=self.id,
+            **payload
         )
 
         return Message.from_dict(response, self.http)
