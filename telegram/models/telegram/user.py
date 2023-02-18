@@ -1,11 +1,11 @@
 from attrs import define, field
 from typing import Literal
 
-from ..attrs_utils import DictSerializerMixin
+from ..attrs_utils import ClientSerializerMixin
 
 
 @define(kw_only=True)
-class User(DictSerializerMixin):
+class User(ClientSerializerMixin):
     id: int
     is_bot: bool
     first_name: str

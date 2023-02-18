@@ -1,10 +1,10 @@
 from attrs import define, field
 
-from ..attrs_utils import DictSerializerMixin
+from ..attrs_utils import ClientSerializerMixin
 
 
 @define(kw_only=True)
-class Chat(DictSerializerMixin):
+class Chat(ClientSerializerMixin):
     id: int
     type: str
     title: str | None = field(default=None)
