@@ -94,6 +94,10 @@ class Message(ClientSerializerMixin):
 
         return super().process_dict(data, http)
 
+    @property
+    def author(self) -> User:
+        return self.user
+
     async def reply_text(self, text: str, parse_mode: str | None = None) -> "Message":
         response = await self.http.send_message(
             self.chat.id,
