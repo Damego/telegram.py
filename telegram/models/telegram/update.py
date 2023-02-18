@@ -1,11 +1,11 @@
 from attrs import define, field
 
 from .message import Message
-from ..attrs_utils import DictSerializerMixin, convert_dataclass
+from ..attrs_utils import ClientSerializerMixin, convert_dataclass
 
 
-@define(kw_only=True)
-class Update(DictSerializerMixin):
+@define(eq=False, order=False, hash=False, kw_only=True)
+class Update(ClientSerializerMixin):
     update_id: int
     message: Message | None = field(converter=convert_dataclass(Message), default=None)
     edited_message: Message | None = field(converter=convert_dataclass(Message), default=None)
@@ -21,3 +21,4 @@ class Update(DictSerializerMixin):
     # my_chat_member
     # chat_member
     # chat_join_request
+

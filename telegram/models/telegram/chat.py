@@ -1,4 +1,4 @@
-from attrs import define
+from attrs import define, field
 
 from ..attrs_utils import DictSerializerMixin
 
@@ -7,10 +7,10 @@ from ..attrs_utils import DictSerializerMixin
 class Chat(DictSerializerMixin):
     id: int
     type: str
-    title: str
-    username: str
-    first_name: str
-    last_name: str
+    title: str | None = field(default=None)
+    username: str | None = field(default=None)
+    first_name: str | None = field(default=None)
+    last_name: str | None = field(default=None)
     # is_forum
     # photo
     # active_usernames
