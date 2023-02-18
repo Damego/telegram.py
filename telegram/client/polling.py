@@ -17,18 +17,13 @@ class Polling:
         allowed_updates: list[str] | None = None
     ) -> AsyncGenerator[Update, None]:
         while True:
-            try:
-                raw_updates = await self._http.get_updates(
-                    offset,
-                    limit,
-                    timeout,
-                    allowed_updates
-                )
-                updates = [Update.from_dict(update_data) for update_data in raw_updates]
-
-            except Exception as e:
-                logging.exception("")
-                continue
+            raw_updates = await self._http.get_updates(
+                offset,
+                limit,
+                timeout,
+                allowed_updates
+            )
+            updates = Update.from_list(raw_updates, self._http)
 
             for update in updates:
                 yield update
