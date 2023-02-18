@@ -23,9 +23,8 @@ class HTTPClient(
     async def request(self, route: Route, data: dict | None = None) -> dict:
         await self.get_client_session()
 
-        async with self._session.request(route.method, route.url, params=data) as response:
+        async with self._session.request(route.method, route.url, json=data) as response:
             json = await response.json(loads=orjson.loads)
-
             # TODO: ratelimits
             if json["ok"]:
                 return json["result"]
