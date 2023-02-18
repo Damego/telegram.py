@@ -3,11 +3,12 @@ from aiohttp import ClientSession
 import orjson
 
 from .route import Route
-from .request import Request
+from .requests import ClientRequests, MessageRequests
 
 
 class HTTPClient(
-    Request
+    ClientRequests,
+    MessageRequests
 ):
     def __init__(self, token: str):
         self._session: ClientSession | None = None
@@ -19,7 +20,7 @@ class HTTPClient(
 
         return self._session
 
-    async def request(self, route: Route, data: dict):
+    async def request(self, route: Route, data: dict | None = None) -> dict:
         await self.get_client_session()
 
         async with self._session.request(route.method, route.url, params=data) as response:
