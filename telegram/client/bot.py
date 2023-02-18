@@ -30,6 +30,8 @@ class Bot:
             self._dispatch.dispatch("message", update.message)
         if update.edited_message:
             self._dispatch.dispatch("edited_message", update.edited_message)
+        if update.callback_query:
+            self._dispatch.dispatch("callback_query", update.callback_query)
 
     def on_message(self):
         def decorator(func: Callable[..., Coroutine]):
@@ -40,6 +42,12 @@ class Bot:
     def on_message_edit(self):
         def decorator(func: Callable[..., Coroutine]):
             self._dispatch.register(func, "edited_message")
+            return func
+        return decorator
+
+    def on_callback_query(self):
+        def decorator(func: Callable[..., Coroutine]):
+            self._dispatch.register(func, "callback_query")
             return func
         return decorator
 
