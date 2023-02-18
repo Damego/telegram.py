@@ -1,17 +1,23 @@
 from typing import Type, Callable, TYPE_CHECKING, TypeVar
 
-from attrs import define, field, Attribute
+from attrs import define, field, asdict
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
 
 T = TypeVar("T")
 
+# TODO:
+# Refactor:
+#  Remove hardcoded http kwarg ignoring
+
 
 @define(eq=False, order=False, hash=False, kw_only=True)
 class DictSerializerMixin:
     @classmethod
     def from_dict(cls, data: dict):
+        if isinstance(data, cls):
+            return data
         data = cls.process_dict(data)
 
         return cls(**data)
@@ -22,8 +28,10 @@ class DictSerializerMixin:
 
     @classmethod
     def process_dict(cls, data: dict) -> dict:
-        attr_names = [attr.name for attr in cls.__attrs_attrs__]
-        return {key: value for key, value in data.items() if key in attr_names}
+        return {key: value for key, value in data.items() if key != 'http'}
+
+    def to_dict(self):
+        return asdict(self, filter=lambda attr, value: attr.name not in {"http"} and value is not None)
 
 
 @define(eq=False, order=False, hash=False, kw_only=True)
@@ -32,12 +40,13 @@ class ClientSerializerMixin(DictSerializerMixin):
 
     @classmethod
     def from_dict(cls, data: dict, http: "HTTPClient" = None):
+        http = http or data.get("http")
         data = cls.process_dict(data, http)
         return cls(**data)
 
     @classmethod
     def from_list(cls, data: list[dict], http: "HTTPClient" = None):
-        return [cls.from_dict(_, http=http) for _ in data]
+        return [cls.from_dict(_, http=http or _.get("http")) for _ in data]
 
     @classmethod
     def process_dict(cls, data: dict, http: "HTTPCLient") -> dict:
@@ -47,7 +56,7 @@ class ClientSerializerMixin(DictSerializerMixin):
             elif value and isinstance(value, list) and isinstance(value[0], dict):
                 for val in value:
                     val["http"] = http
-        return super().process_dict(data)
+        return data
 
 
 def convert_dataclass(converter: Type[T]) -> Callable[[dict | None], T | None]:
