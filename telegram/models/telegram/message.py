@@ -4,10 +4,21 @@ from typing import Literal, Optional
 from attrs import define, field
 
 from .user import User
-from ..attrs_utils import ClientSerializerMixin, convert, convert_dataclass
+from ..attrs_utils import ClientSerializerMixin, DictSerializerMixin, convert, convert_dataclass, convert_list_dataclass
 from .chat import Chat
 from ...utils.types import MISSING, Absent
 from .keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
+
+
+@define(kw_only=True)
+class MessageEntity(DictSerializerMixin):
+    type: str
+    offset: int
+    length: int
+    url: str | None = field(default=None)
+    user: User | None = field(converter=convert_dataclass(User), default=None)
+    language: str | None = field(default=None)
+    custom_emoji_id: str | None = field(default=None)
 
 
 @define(kw_only=True)
@@ -33,8 +44,7 @@ class Message(ClientSerializerMixin):
     media_group_id: str | None = field(default=None)
     author_signature: str | None = field(default=None)
     text: str | None = field(default=None)
-
-    # entities
+    entities: list[MessageEntity] | None = field(converter=convert_list_dataclass(MessageEntity), default=None)
     # animation
     # audio
     # document

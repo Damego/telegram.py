@@ -22,6 +22,15 @@ class ClientRequests(BaseRequest):
         response = await self.request(Route("GET", "/getMe"))
         return cast(dict, response)
 
+    async def set_my_commands(
+        self,
+        commands: list[dict],
+        scope: dict | None = None,
+        language_code: str | None = None
+    ):
+        data = dict_filter_none_and_self(**locals())
+        await self.request(Route("GET", "/setMyCommands"), data)
+
 
 
 
