@@ -1,29 +1,100 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from attrs import define, field
+from attrs import field
 
 from .user import User
-from ..attrs_utils import ClientSerializerMixin, DictSerializerMixin, convert, convert_dataclass, convert_list_dataclass
+from ..attrs_utils import define, ClientSerializerMixin, DictSerializerMixin, convert, convert_dataclass, convert_list_dataclass
 from .chat import Chat
 from ...utils.types import MISSING, Absent
 from .keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
 
 
-@define(kw_only=True)
+@define()
 class MessageEntity(DictSerializerMixin):
-    type: str
-    offset: int
-    length: int
+    type: str = field()
+    offset: int = field()
+    length: int = field()
     url: str | None = field(default=None)
     user: User | None = field(converter=convert_dataclass(User), default=None)
     language: str | None = field(default=None)
     custom_emoji_id: str | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
+class MessageId(DictSerializerMixin):
+    id: int = field()  # message_id
+
+    @classmethod
+    def process_dict(cls, data: dict) -> dict:
+        data["id"] = data.pop("message_id")
+        return data
+
+
+@define()
+class PhotoSize(DictSerializerMixin):
+    file_id: str = field()
+    file_unique: str = field()
+    width: int = field()
+    height: int = field()
+    file_size: int | None = field(default=None)
+
+
+@define()
+class Animation(DictSerializerMixin):
+    """
+    This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
+    """
+
+    file_id: str = field()
+    "Identifier for this file, which can be used to download or reuse the file"
+    file_unique_id:	str = field()
+    "Unique identifier for this file, which is supposed to be the same over time and for different bots"
+    width: int = field()
+    "Video width as defined by sender"
+    height:	int = field()
+    "Video height as defined by sender"
+    duration: int = field()
+    "Duration of the video in seconds as defined by sender"
+    thumb: PhotoSize | None = field(converter=convert_dataclass(PhotoSize), default=None)
+    "Animation thumbnail as defined by sender"
+    file_name: str | None = field(default=None)
+    "Original animation filename as defined by sender"
+    mime_type: str | None = field(default=None)
+    "MIME type of the file as defined by sender"
+    file_size: int | None = field(default=None)
+    "File size in bytes"
+
+
+@define()
+class Audio(DictSerializerMixin):
+    """
+    This object represents an audio file to be treated as music by the Telegram clients
+    """
+
+    file_id: str = field()
+    "Identifier for this file, which can be used to download or reuse the file"
+    file_unique_id:	str = field()
+    "Unique identifier for this file, which is supposed to be the same over time and for different bots"
+    duration: int = field()
+    "Duration of the audio in seconds as defined by sender"
+    performer: str | None = field(default=None)
+    "Performer of the audio as defined by sender or by audio tags"
+    title: str | None = field(default=None)
+    "Title of the audio as defined by sender or by audio tags"
+    file_name: str | None = field(default=None)
+    "Original filename as defined by sender"
+    mime_type: str | None = field(default=None)
+    "MIME type of the file as defined by sender"
+    file_size: int | None = field(default=None)
+    "File size in bytes"
+    thumb: PhotoSize | None = field(converter=convert_dataclass(PhotoSize), default=None)
+    "Thumbnail of the album cover to which the music file belongs"
+
+
+@define()
 class Message(ClientSerializerMixin):
-    id: int
+    id: int = field()
     message_thread_id: int | None = field(default=None)
     user: User | None = field(converter=convert_dataclass(User), default=None)  # from
     sender_chat: Chat = field(converter=convert_dataclass(Chat), default=None)
