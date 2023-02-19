@@ -1,10 +1,10 @@
-from attrs import define, field
+from attrs import field
 from typing import Literal
 
-from ..attrs_utils import ClientSerializerMixin
+from ..attrs_utils import ClientSerializerMixin, define
 
 
-@define(kw_only=True)
+@define()
 class User(ClientSerializerMixin):
     id: int
     is_bot: bool

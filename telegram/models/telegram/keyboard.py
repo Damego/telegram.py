@@ -1,16 +1,16 @@
-from attrs import define, field
+from attrs import field
 
-from ..attrs_utils import DictSerializerMixin, convert_dataclass, convert_list_dataclass
+from ..attrs_utils import DictSerializerMixin, convert_dataclass, convert_list_dataclass, define
 
 
-@define(kw_only=True)
+@define()
 class KeyboardButtonRequestUser(DictSerializerMixin):
     request_id: int
     user_is_bot: bool | None = field(default=None)
     user_id_premium: bool | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class KeyboardButtonRequestChat(DictSerializerMixin):
     request_id: int
     chat_is_channel: bool | None = field(default=None)
@@ -22,12 +22,12 @@ class KeyboardButtonRequestChat(DictSerializerMixin):
     bot_is_member: bool | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class KeyboardButtonPollType(DictSerializerMixin):
     type: str | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class KeyboardButton(DictSerializerMixin):
     text: str
     request_user: KeyboardButtonRequestUser | None = field(converter=convert_dataclass(KeyboardButtonRequestUser))
@@ -38,7 +38,7 @@ class KeyboardButton(DictSerializerMixin):
     # web_app
 
 
-@define(kw_only=True)
+@define()
 class ReplyKeyboardMarkup(DictSerializerMixin):
     keyboard: list[KeyboardButton] = field(converter=convert_list_dataclass(KeyboardButton))
     is_persistent: bool | None = field(default=None)
@@ -48,13 +48,13 @@ class ReplyKeyboardMarkup(DictSerializerMixin):
     selective: bool | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class ReplyKeyboardRemove(DictSerializerMixin):
     remove_keyboard: bool | None = field(default=None)
     selective: bool | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class InlineKeyboardButton(DictSerializerMixin):
     text: str
     url: str | None = field(default=None)
@@ -67,7 +67,7 @@ class InlineKeyboardButton(DictSerializerMixin):
     pay: bool | None = field(default=None)
 
 
-@define(kw_only=True)
+@define()
 class InlineKeyboardMarkup(DictSerializerMixin):
     inline_keyboard: list[list[InlineKeyboardButton]] = field()
 
@@ -81,7 +81,7 @@ class InlineKeyboardMarkup(DictSerializerMixin):
         ]
 
 
-@define(kw_only=True)
+@define()
 class LoginUrl(DictSerializerMixin):
     url: str
     forward_text: str | None = field(default=None)

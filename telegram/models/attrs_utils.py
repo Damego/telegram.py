@@ -1,6 +1,6 @@
 from typing import Type, Callable, TYPE_CHECKING, TypeVar
 
-from attrs import define, field, asdict
+from attrs import define as _define, field, asdict
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
@@ -12,7 +12,14 @@ T = TypeVar("T")
 #  Remove hardcoded http kwarg ignoring
 
 
-@define(eq=False, order=False, hash=False, kw_only=True)
+defaults_define = dict(eq=False, order=False, hash=False, kw_only=True, slots=True)
+
+
+def define(**kwargs):
+    return _define(**defaults_define, **kwargs)
+
+
+@define()
 class DictSerializerMixin:
     @classmethod
     def from_dict(cls, data: dict):
@@ -34,7 +41,7 @@ class DictSerializerMixin:
         return asdict(self, filter=lambda attr, value: attr.name not in {"http"} and value is not None)
 
 
-@define(eq=False, order=False, hash=False, kw_only=True)
+@define()
 class ClientSerializerMixin(DictSerializerMixin):
     http: "HTTPClient" = field(default=None)
 

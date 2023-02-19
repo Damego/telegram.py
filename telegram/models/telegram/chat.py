@@ -1,9 +1,9 @@
-from attrs import define, field
+from attrs import field
 
-from ..attrs_utils import ClientSerializerMixin
+from ..attrs_utils import ClientSerializerMixin, define
 
 
-@define(kw_only=True)
+@define()
 class Chat(ClientSerializerMixin):
     id: int
     type: str

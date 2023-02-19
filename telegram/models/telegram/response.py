@@ -1,11 +1,11 @@
-from attrs import define, field
+from attrs import field
 
-from ..attrs_utils import ClientSerializerMixin, convert_dataclass
+from ..attrs_utils import ClientSerializerMixin, convert_dataclass, define
 from .user import User
 from .message import Message
 
 
-@define(kw_only=True)
+@define()
 class CallbackQuery(ClientSerializerMixin):
     id: str
     user: User = field(default=None, converter=convert_dataclass(User))
@@ -23,7 +23,7 @@ class CallbackQuery(ClientSerializerMixin):
         return super().process_dict(data, http)
 
 
-@define(eq=False, order=False, hash=False, kw_only=True)
+@define()
 class Update(ClientSerializerMixin):
     update_id: int
     message: Message | None = field(converter=convert_dataclass(Message), default=None)
