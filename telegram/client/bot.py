@@ -1,5 +1,6 @@
 import asyncio
 from typing import Callable, Coroutine
+from contextlib import suppress
 
 from ..http.client import HTTPClient
 from .polling import Polling
@@ -16,28 +17,28 @@ class Bot:
 
         self._commands: list[Command] = []
 
-        try:
-            self._loop = asyncio.get_running_loop()
-        except RuntimeError:
-            self._loop = asyncio.new_event_loop()
-
         self.user: User | None = None
 
-    async def _run(self):
+    async def run_async(self):
+        await self._get_bot_user()
+        await self._set_commands()
+
+        self._dispatch.dispatch("startup")
+
+        await self._start_polling()
+
+    async def _get_bot_user(self):
         self.user = User.from_dict(
             await self._http.get_me(),
             self._http
         )
 
+    async def _set_commands(self):
         commands: list[dict] = [
             command.metadata.to_dict()
             for command in self._commands
         ]
         await self._http.set_my_commands(commands)
-
-        self._dispatch.dispatch("startup")
-
-        await self._start_polling()
 
     async def _start_polling(self):
         async for update in self._polling.polling():
@@ -88,9 +89,6 @@ class Bot:
         return decorator
 
     def run(self):
-        try:
-            self._loop.run_until_complete(
-                self._run()
-            )
-        except KeyboardInterrupt:
-            ...
+        with suppress(KeyboardInterrupt):
+            asyncio.run(self.run_async())
+
